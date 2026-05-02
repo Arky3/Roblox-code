@@ -376,226 +376,175 @@ local modelFolder = Instance.new("Folder")
 modelFolder.Name = "CreatureModel"
 modelFolder.Parent = worldModel
 
-local faceTextLabel = nil
 local summaryLabel = nil
+local previewYaw = 0
+local baseDescription = nil
+local currentAvatarModel = nil
+local avatarStandY = 3
+local previewUpdateToken = 0
 
--- ============================================================
--- 3-D BUILDING
--- ============================================================
-local function makePart(parent, name, size, cframe, color, transparency, shape)
-	local p = Instance.new("Part")
-	p.Name = name
-	p.Size = size
-	p.CFrame = cframe
-	p.Color = color
-	p.Transparency = transparency or 0
-	p.Anchored = true
-	p.CanCollide = false
-	p.CastShadow = false
-	p.Shape = shape or Enum.PartType.Block
-	p.TopSurface = Enum.SurfaceType.Smooth
-	p.BottomSurface = Enum.SurfaceType.Smooth
-	p.Parent = parent
-	return p
-end
-
-local function addFace(part)
-	local sg = Instance.new("SurfaceGui")
-	sg.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-	sg.PixelsPerStud = 50
-	sg.Face = Enum.NormalId.Front
-	sg.Parent = part
-
-	faceTextLabel = Instance.new("TextLabel")
-	faceTextLabel.Size = UDim2.new(1,0,1,0)
-	faceTextLabel.BackgroundTransparency = 1
-	faceTextLabel.Text = selected.face and selected.face.text or ""
-	faceTextLabel.TextColor3 = Color3.fromRGB(20,20,30)
-	faceTextLabel.Font = Enum.Font.GothamBlack
-	faceTextLabel.TextScaled = true
-	faceTextLabel.Parent = sg
-end
-
-local function buildCreatureShape()
-	modelFolder:ClearAllChildren()
-	faceTextLabel = nil
-
-	local body  = selected.body
-	local color = body.color
-	local shape = body.shape
-
-	if shape == "fish" then
-		local t = makePart(modelFolder,"Body",Vector3.new(4.2,2.2,2),CFrame.new(0,3.1,0),color,0,Enum.PartType.Ball)
-		addFace(t)
-		makePart(modelFolder,"Tail",Vector3.new(1.4,2.4,0.5),CFrame.new(-2.8,3.1,0),color)
-		makePart(modelFolder,"FinTop",Vector3.new(1.1,1,0.3),CFrame.new(0,4.35,0),rgb(40,120,210))
-	elseif shape == "nugget" then
-		local t = makePart(modelFolder,"Body",Vector3.new(3.8,3.2,2.3),CFrame.new(0,3.1,0),color,0,Enum.PartType.Ball)
-		addFace(t)
-		makePart(modelFolder,"Crunch1",Vector3.new(1,0.6,0.6),CFrame.new(-1.3,4.4,0.2),rgb(255,205,110),0,Enum.PartType.Ball)
-		makePart(modelFolder,"Crunch2",Vector3.new(0.8,0.5,0.5),CFrame.new(1.3,2.1,0.2),rgb(214,145,60),0,Enum.PartType.Ball)
-	elseif shape == "toilet" then
-		local h = makePart(modelFolder,"Tank",Vector3.new(3.6,2.2,1.6),CFrame.new(0,4.5,0),color)
-		addFace(h)
-		makePart(modelFolder,"Bowl",Vector3.new(3.2,2.2,3),CFrame.new(0,2.2,0),color,0,Enum.PartType.Ball)
-		makePart(modelFolder,"Seat",Vector3.new(3.4,0.35,3.4),CFrame.new(0,3.3,0),rgb(245,245,255))
-	elseif shape == "alien" then
-		local h = makePart(modelFolder,"Head",Vector3.new(3.2,3.2,2.6),CFrame.new(0,5.1,0),color,0,Enum.PartType.Ball)
-		addFace(h)
-		makePart(modelFolder,"Body",Vector3.new(2.2,3,1.4),CFrame.new(0,2.5,0),color)
-		makePart(modelFolder,"AntennaL",Vector3.new(0.2,1.3,0.2),CFrame.new(-0.8,6.9,0),color)
-		makePart(modelFolder,"AntennaR",Vector3.new(0.2,1.3,0.2),CFrame.new(0.8,6.9,0),color)
-	elseif shape == "goblin" then
-		local h = makePart(modelFolder,"Head",Vector3.new(3.2,2.5,2.5),CFrame.new(0,5.2,0),color)
-		addFace(h)
-		makePart(modelFolder,"EarL",Vector3.new(1.2,0.8,0.4),CFrame.new(-2.1,5.3,0),color)
-		makePart(modelFolder,"EarR",Vector3.new(1.2,0.8,0.4),CFrame.new(2.1,5.3,0),color)
-		makePart(modelFolder,"Body",Vector3.new(2.6,3.1,1.5),CFrame.new(0,2.4,0),rgb(50,145,75))
-	elseif shape == "blob" then
-		local b = makePart(modelFolder,"Blob",Vector3.new(4.2,4.2,3.2),CFrame.new(0,3.5,0),color,0,Enum.PartType.Ball)
-		addFace(b)
-		makePart(modelFolder,"Lump1",Vector3.new(1.4,1.4,1.4),CFrame.new(-1.7,5,0),color,0,Enum.PartType.Ball)
-		makePart(modelFolder,"Lump2",Vector3.new(1.2,1.2,1.2),CFrame.new(1.6,2,0),color,0,Enum.PartType.Ball)
-	elseif shape == "shark" then
-		local b = makePart(modelFolder,"Body",Vector3.new(4.5,2.4,2),CFrame.new(0,3.3,0),color,0,Enum.PartType.Ball)
-		addFace(b)
-		makePart(modelFolder,"Fin",Vector3.new(1.2,1.6,0.4),CFrame.new(0,4.7,0),rgb(55,95,130))
-		makePart(modelFolder,"Tail",Vector3.new(1.3,2.2,0.5),CFrame.new(-3,3.3,0),color)
-	elseif shape == "chicken" then
-		local b = makePart(modelFolder,"Body",Vector3.new(3.4,3.6,2.4),CFrame.new(0,3.2,0),color,0,Enum.PartType.Ball)
-		addFace(b)
-		makePart(modelFolder,"Comb",Vector3.new(1.4,0.9,0.4),CFrame.new(0,5.5,0),rgb(255,70,70))
-		makePart(modelFolder,"Beak",Vector3.new(0.9,0.45,0.8),CFrame.new(0,3.9,-1.3),rgb(255,145,40))
-	elseif shape == "tv" then
-		local t = makePart(modelFolder,"Screen",Vector3.new(3.6,2.8,1.1),CFrame.new(0,4.8,0),rgb(45,50,65))
-		addFace(t)
-		makePart(modelFolder,"Body",Vector3.new(2.4,2.8,1.4),CFrame.new(0,2.2,0),color)
-		makePart(modelFolder,"Antenna",Vector3.new(0.25,1.5,0.25),CFrame.new(0,6.4,0),rgb(210,210,220))
-	elseif shape == "mushroom" then
-		local c = makePart(modelFolder,"Cap",Vector3.new(4.6,1.7,4),CFrame.new(0,5.4,0),color,0,Enum.PartType.Ball)
-		addFace(c)
-		makePart(modelFolder,"Stem",Vector3.new(2.1,3.8,1.8),CFrame.new(0,2.5,0),rgb(245,220,190),0,Enum.PartType.Ball)
-	elseif shape == "robot" then
-		local h = makePart(modelFolder,"Head",Vector3.new(3,2.4,2),CFrame.new(0,5.2,0),color)
-		addFace(h)
-		makePart(modelFolder,"Body",Vector3.new(3.2,3,1.5),CFrame.new(0,2.4,0),rgb(110,125,140))
-		makePart(modelFolder,"ArmL",Vector3.new(0.8,2.4,0.8),CFrame.new(-2.3,2.7,0),color)
-		makePart(modelFolder,"ArmR",Vector3.new(0.8,2.4,0.8),CFrame.new(2.3,2.7,0),color)
-	elseif shape == "frog" then
-		local h = makePart(modelFolder,"Head",Vector3.new(4,2.5,2.6),CFrame.new(0,4.8,0),color,0,Enum.PartType.Ball)
-		addFace(h)
-		makePart(modelFolder,"EyeL",Vector3.new(0.8,0.8,0.8),CFrame.new(-1.2,6,0),rgb(245,245,245),0,Enum.PartType.Ball)
-		makePart(modelFolder,"EyeR",Vector3.new(0.8,0.8,0.8),CFrame.new(1.2,6,0),rgb(245,245,245),0,Enum.PartType.Ball)
-		makePart(modelFolder,"Body",Vector3.new(2.7,2.8,1.6),CFrame.new(0,2.3,0),color,0,Enum.PartType.Ball)
-	elseif shape == "pizza" then
-		local s = makePart(modelFolder,"Slice",Vector3.new(4,4.8,0.8),CFrame.new(0,3.6,0),color)
-		addFace(s)
-		makePart(modelFolder,"Crust",Vector3.new(4.4,0.7,1),CFrame.new(0,5.9,0),rgb(190,120,50))
-		makePart(modelFolder,"Pep1",Vector3.new(0.7,0.7,0.2),CFrame.new(-0.9,4.2,-0.5),rgb(190,45,45),0,Enum.PartType.Ball)
-		makePart(modelFolder,"Pep2",Vector3.new(0.7,0.7,0.2),CFrame.new(1,3.2,-0.5),rgb(190,45,45),0,Enum.PartType.Ball)
-	elseif shape == "cloud" then
-		local c = makePart(modelFolder,"Cloud",Vector3.new(4.5,2.5,2.6),CFrame.new(0,3.7,0),color,0,Enum.PartType.Ball)
-		addFace(c)
-		makePart(modelFolder,"PuffL",Vector3.new(2.2,2.2,2),CFrame.new(-1.6,4.2,0),color,0,Enum.PartType.Ball)
-		makePart(modelFolder,"PuffR",Vector3.new(2.2,2.2,2),CFrame.new(1.6,4.1,0),color,0,Enum.PartType.Ball)
-	elseif shape == "cactus" then
-		local c = makePart(modelFolder,"Cactus",Vector3.new(2.4,5.2,1.8),CFrame.new(0,3.2,0),color,0,Enum.PartType.Ball)
-		addFace(c)
-		makePart(modelFolder,"ArmL",Vector3.new(1,2.2,1),CFrame.new(-1.7,3.9,0),color,0,Enum.PartType.Ball)
-		makePart(modelFolder,"ArmR",Vector3.new(1,2.2,1),CFrame.new(1.7,3,0),color,0,Enum.PartType.Ball)
-	else -- ghost (default)
-		local g = makePart(modelFolder,"Ghost",Vector3.new(3.5,4.5,2.4),CFrame.new(0,3.5,0),color,0.05,Enum.PartType.Ball)
-		addFace(g)
-		makePart(modelFolder,"FloatBase",Vector3.new(3.8,1.2,2.2),CFrame.new(0,1.4,0),color,0.05,Enum.PartType.Ball)
+local function applyPreviewRotation()
+	if currentAvatarModel then
+		currentAvatarModel:PivotTo(CFrame.new(0, avatarStandY, 0) * CFrame.Angles(0, previewYaw, 0))
 	end
 end
 
-local function addWearPart(name, size, cframe, color, transparency, shape)
-	return makePart(modelFolder, name, size, cframe, color, transparency, shape)
+-- ============================================================
+-- R15 AVATAR PREVIEW
+-- ============================================================
+local function buildCreatureShape()
+	if not baseDescription then return end
+
+	local token = previewUpdateToken + 1
+	previewUpdateToken = token
+
+	-- Build a modified HumanoidDescription
+	local desc = Instance.new("HumanoidDescription")
+
+	-- Body color from selected body item
+	local bodyColor = selected.body and selected.body.color or Color3.fromRGB(163, 162, 165)
+
+	-- Glitch aura: blend body color 50% toward purple
+	if selected.aura and selected.aura.id == "Glitch" then
+		local purple = Color3.fromRGB(124, 93, 255)
+		bodyColor = Color3.new(
+			(bodyColor.R + purple.R) / 2,
+			(bodyColor.G + purple.G) / 2,
+			(bodyColor.B + purple.B) / 2
+		)
+	end
+
+	desc.HeadColor     = bodyColor
+	desc.TorsoColor    = bodyColor
+	desc.LeftArmColor  = bodyColor
+	desc.RightArmColor = bodyColor
+	desc.LeftLegColor  = bodyColor
+	desc.RightLegColor = bodyColor
+
+	-- Preserve the player's face and hair from base description
+	desc.Face          = baseDescription.Face
+	desc.HairAccessory = baseDescription.HairAccessory
+
+	-- Hat accessories: Crown and Cone have real asset ids; others use no accessory
+	local hatId = selected.hat and selected.hat.id or "None"
+	if hatId == "Crown" then
+		desc.HatAccessory = "3284939"
+	elseif hatId == "Cone" then
+		desc.HatAccessory = "3085632"
+	else
+		desc.HatAccessory = ""
+	end
+
+	-- Back accessories: Wings and AngelWings have real asset ids
+	local backId = selected.back and selected.back.id or "None"
+	if backId == "Wings" then
+		desc.BackAccessory = "119916949"
+	elseif backId == "AngelWings" then
+		desc.BackAccessory = "144076838"
+	else
+		desc.BackAccessory = ""
+	end
+
+	-- Clear remaining slots so nothing bleeds in from baseDescription
+	desc.FaceAccessory      = ""
+	desc.NeckAccessory      = ""
+	desc.ShouldersAccessory = ""
+	desc.FrontAccessory     = ""
+	desc.WaistAccessory     = ""
+
+	-- Create the R15 avatar model (yields)
+	local ok, newModel = pcall(function()
+		return Players:CreateHumanoidModelFromDescriptionAsync(desc, Enum.HumanoidRigType.R15)
+	end)
+
+	if not ok or not newModel then return end
+
+	-- Discard if a newer update was already queued
+	if previewUpdateToken ~= token then
+		newModel:Destroy()
+		return
+	end
+
+	-- Anchor all parts; disable physics interactions
+	for _, part in ipairs(newModel:GetDescendants()) do
+		if part:IsA("BasePart") then
+			part.Anchored   = true
+			part.CanCollide = false
+			part.CanTouch   = false
+			part.CanQuery   = false
+		end
+	end
+
+	local humanoid = newModel:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+		humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll,     false)
+		humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp,   false)
+	end
+
+	-- Swap out old model
+	if currentAvatarModel then
+		currentAvatarModel:Destroy()
+		currentAvatarModel = nil
+	end
+
+	newModel.Parent    = modelFolder
+	currentAvatarModel = newModel
+
+	-- Stand on podium top surface (y ≈ 0.53)
+	local pivotCF, size = newModel:GetBoundingBox()
+	local feetY        = pivotCF.Y - size.Y / 2
+	local podiumTopY   = 0.53
+	local currentPivY  = newModel:GetPivot().Y
+	avatarStandY       = currentPivY + (podiumTopY - feetY)
+
+	newModel:PivotTo(CFrame.new(0, avatarStandY, 0) * CFrame.Angles(0, previewYaw, 0))
+
+	-- Frame camera: full-body shot, looking at mid-chest
+	local midY = podiumTopY + size.Y * 0.5
+	vpCam.CFrame = CFrame.new(Vector3.new(0, midY + 0.4, 11), Vector3.new(0, midY - 0.3, 0))
 end
+
+-- Fetch the player's HumanoidDescription once at startup
+task.spawn(function()
+	local ok, desc = pcall(function()
+		return Players:GetHumanoidDescriptionFromUserId(player.UserId)
+	end)
+	baseDescription = (ok and desc) or Instance.new("HumanoidDescription")
+	updatePreview()
+end)
+
+-- Mouse / touch drag to rotate preview
+local draggingPreview = false
+local lastDragX = 0
+
+viewport.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+		draggingPreview = true
+		lastDragX = input.Position.X
+	end
+end)
+
+viewport.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+		draggingPreview = false
+	end
+end)
+
+viewport.InputChanged:Connect(function(input)
+	if not draggingPreview then return end
+	if input.UserInputType ~= Enum.UserInputType.MouseMovement
+		and input.UserInputType ~= Enum.UserInputType.Touch then return end
+	local deltaX = input.Position.X - lastDragX
+	lastDragX = input.Position.X
+	previewYaw = previewYaw + deltaX * 0.012
+	applyPreviewRotation()
+end)
 
 local function updatePreview()
-	buildCreatureShape()
-
-	if selected.clothes and selected.clothes.id ~= "None" then
-		addWearPart("Clothes",Vector3.new(3.4,2.2,1.9),CFrame.new(0,2.8,-0.05),selected.clothes.color,0.25,Enum.PartType.Block)
-	end
-
-	if selected.hat and selected.hat.id ~= "None" then
-		local hid = selected.hat.id
-		if hid == "Crown" then
-			addWearPart("Hat",Vector3.new(2.5,0.55,2.5),CFrame.new(0,7.1,0),selected.hat.color)
-			addWearPart("HatTop",Vector3.new(1.5,0.45,1.5),CFrame.new(0,7.65,0),selected.hat.color)
-		elseif hid == "Cone" then
-			addWearPart("Hat",Vector3.new(1.6,2.1,1.6),CFrame.new(0,7.4,0),selected.hat.color)
-		elseif hid == "WifiHalo" or hid == "RizzHalo" then
-			addWearPart("Hat",Vector3.new(4,0.25,0.45),CFrame.new(0,7.05,0),selected.hat.color)
-		elseif hid == "Headphones" then
-			addWearPart("HeadphoneL",Vector3.new(0.6,1.1,0.6),CFrame.new(-1.6,5.4,0),selected.hat.color)
-			addWearPart("HeadphoneR",Vector3.new(0.6,1.1,0.6),CFrame.new(1.6,5.4,0),selected.hat.color)
-			addWearPart("Headband",Vector3.new(3.2,0.25,0.25),CFrame.new(0,6.65,0),selected.hat.color)
-		elseif hid == "Viking" then
-			addWearPart("VikingBase",Vector3.new(2.8,0.7,2.8),CFrame.new(0,7.05,0),selected.hat.color)
-			addWearPart("HornL",Vector3.new(1.2,0.45,0.45),CFrame.new(-1.8,7.2,0),rgb(245,235,205))
-			addWearPart("HornR",Vector3.new(1.2,0.45,0.45),CFrame.new(1.8,7.2,0),rgb(245,235,205))
-		elseif hid == "FishBowl" then
-			addWearPart("FishBowl",Vector3.new(3.4,3.4,3.4),CFrame.new(0,5.7,0),selected.hat.color,0.55,Enum.PartType.Ball)
-		elseif hid == "GyattHorns" then
-			addWearPart("HornL",Vector3.new(0.6,1.4,0.6),CFrame.new(-1.1,7.3,0),selected.hat.color,0,Enum.PartType.Ball)
-			addWearPart("HornR",Vector3.new(0.6,1.4,0.6),CFrame.new(1.1,7.3,0),selected.hat.color,0,Enum.PartType.Ball)
-		elseif hid == "OhioCrown" then
-			addWearPart("Hat",Vector3.new(2.8,0.6,2.8),CFrame.new(0,7.1,0),selected.hat.color)
-			addWearPart("Spike1",Vector3.new(0.4,1.0,0.4),CFrame.new(-0.8,7.7,0),selected.hat.color)
-			addWearPart("Spike2",Vector3.new(0.4,1.0,0.4),CFrame.new(0,7.9,0),selected.hat.color)
-			addWearPart("Spike3",Vector3.new(0.4,1.0,0.4),CFrame.new(0.8,7.7,0),selected.hat.color)
-		elseif hid == "SigmaCap" then
-			addWearPart("Hat",Vector3.new(3.0,0.5,3.0),CFrame.new(0,7.0,0),selected.hat.color)
-			addWearPart("HatBrim",Vector3.new(3.6,0.2,3.6),CFrame.new(0,6.8,0),selected.hat.color)
-		else
-			addWearPart("Hat",Vector3.new(3,0.8,3),CFrame.new(0,7,0),selected.hat.color)
-		end
-	end
-
-	if selected.back and selected.back.id ~= "None" then
-		local bid = selected.back.id
-		if bid == "Wings" then
-			addWearPart("WingL",Vector3.new(2.2,3,0.45),CFrame.new(-2.1,3.4,1),selected.back.color)
-			addWearPart("WingR",Vector3.new(2.2,3,0.45),CFrame.new(2.1,3.4,1),selected.back.color)
-		elseif bid == "Sword" then
-			addWearPart("Sword",Vector3.new(0.45,5,0.35),CFrame.new(1.4,3.6,1),selected.back.color)
-		elseif bid == "AngelWings" or bid == "DemonWings" then
-			addWearPart("WingL",Vector3.new(2.4,3.5,0.45),CFrame.new(-2.2,3.5,1),selected.back.color)
-			addWearPart("WingR",Vector3.new(2.4,3.5,0.45),CFrame.new(2.2,3.5,1),selected.back.color)
-		elseif bid == "Guitar" then
-			addWearPart("GuitarBody",Vector3.new(1.8,2.4,0.55),CFrame.new(1.1,3,1.1),selected.back.color,0,Enum.PartType.Ball)
-			addWearPart("GuitarNeck",Vector3.new(0.35,3.2,0.3),CFrame.new(-0.3,4.1,1.1),rgb(105,65,35))
-		elseif bid == "Rocket" then
-			addWearPart("Rocket",Vector3.new(1.5,3.8,1.5),CFrame.new(0,3.2,1.1),selected.back.color,0,Enum.PartType.Ball)
-		elseif bid == "WFlag" then
-			addWearPart("FlagPole",Vector3.new(0.2,3.8,0.2),CFrame.new(0.8,4.4,1),rgb(160,150,130))
-			addWearPart("FlagCloth",Vector3.new(2.2,1.4,0.15),CFrame.new(1.9,5.5,1),selected.back.color)
-		elseif bid == "RizzCape" then
-			addWearPart("Cape",Vector3.new(3,3.8,0.3),CFrame.new(0,3.2,1.1),selected.back.color,0.15)
-			addWearPart("CapeGlow",Vector3.new(3.2,4,0.2),CFrame.new(0,3.1,1.2),selected.back.color,0.6)
-		else
-			addWearPart("Back",Vector3.new(2.8,2.8,0.6),CFrame.new(0,3.2,1.05),selected.back.color)
-		end
-	end
-
-	if selected.aura and selected.aura.id ~= "None" then
-		local auraColor = selected.aura.color
-		addWearPart("Aura",Vector3.new(6,7,6),CFrame.new(0,3.5,0),auraColor,0.76,Enum.PartType.Ball)
-		-- second outer ring for Epic/Legendary/Mythic auras
-		local rar = selected.aura.rarity
-		if rar == "Epic" or rar == "Legendary" or rar == "Mythic" then
-			addWearPart("AuraOuter",Vector3.new(7.5,8.5,7.5),CFrame.new(0,3.5,0),auraColor,0.9,Enum.PartType.Ball)
-		end
-	end
-
-	if faceTextLabel then
-		faceTextLabel.Text = selected.face and selected.face.text or ""
-	end
-
+	-- Update summary label immediately (synchronous)
 	local parts = {}
 	if selected.body    then table.insert(parts, selected.body.display) end
 	if selected.face    and selected.face.id    ~= "None" then table.insert(parts, selected.face.display)    end
@@ -606,17 +555,10 @@ local function updatePreview()
 	if summaryLabel then
 		summaryLabel.Text = #parts > 0 and table.concat(parts, " + ") or "Pick a body to start"
 	end
-end
 
--- Slow orbit camera
-task.spawn(function()
-	local angle = 0
-	while true do
-		angle += 0.008
-		vpCam.CFrame = CFrame.new(Vector3.new(math.sin(angle)*14, 4, math.cos(angle)*14), Vector3.new(0,3.5,0))
-		task.wait()
-	end
-end)
+	-- Rebuild avatar (async, cancels stale loads automatically)
+	task.spawn(buildCreatureShape)
+end
 
 -- ============================================================
 -- NAME BOX + SUMMARY + READY BUTTON
