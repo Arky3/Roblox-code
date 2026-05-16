@@ -7,30 +7,20 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: '#0a0a0f',
-        surface: '#13131a',
-        border: '#1e1e2e',
-        primary: '#4f8ef7',
-        secondary: '#22d3a5',
-        'text-primary': '#f0f0f5',
-        'text-muted': '#6b6b80',
-        danger: '#f75555',
-        warning: '#f7a844',
+        cream:  '#F5F0E8',
+        sage:   '#4A6741',
+        'sage-light': '#5C7D53',
+        'sage-dark':  '#3A5231',
+        amber:  '#8A6A10',
+        bark:   '#2C1F14',
+        muted:  '#8A8278',
+        card:   '#FFFCF7',
+        border: '#E0D8CC',
       },
       fontFamily: {
-        sans: ['DM Sans', 'sans-serif'],
+        sans:    ['DM Sans', 'sans-serif'],
+        display: ['Cormorant Garamond', 'serif'],
       },
-      animation: {
-        'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'spin-slow': 'spin 3s linear infinite',
-        'border-dash': 'borderDash 1s linear infinite',
-      },
-      keyframes: {
-        borderDash: {
-          '0%': { strokeDashoffset: '0' },
-          '100%': { strokeDashoffset: '-20' },
-        }
-      }
     },
   },
   plugins: [],
