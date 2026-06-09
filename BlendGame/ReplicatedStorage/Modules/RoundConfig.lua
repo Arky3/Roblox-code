@@ -1,31 +1,34 @@
 -- RoundConfig: ModuleScript in ReplicatedStorage/Modules
 -- Single source of truth for all tunable game constants.
 -- Both server and client require this module.
+-- Pose definitions have been moved to PoseConfig.
 
 local RoundConfig = {}
 
 -- ── Phase durations (seconds) ──────────────────────────────────────────────
-RoundConfig.LOBBY_DURATION     = 15
-RoundConfig.PAINT_DURATION     = 60
-RoundConfig.POSE_LOCK_DURATION = 15
-RoundConfig.SEEK_DURATION      = 45
-RoundConfig.RESULTS_DURATION   = 10
+RoundConfig.INTERMISSION_DURATION  = 20
+RoundConfig.MAP_VOTE_DURATION      = 20
+RoundConfig.ROLE_REVEAL_DURATION   = 5
+RoundConfig.PAINT_DURATION         = 60
+RoundConfig.POSE_LOCK_DURATION     = 20
+RoundConfig.SEEK_DURATION          = 90
+RoundConfig.RESULTS_DURATION       = 12
 
 -- ── Player limits ──────────────────────────────────────────────────────────
 RoundConfig.MIN_PLAYERS = 2
 RoundConfig.MAX_PLAYERS = 10
 
 -- Seeker count = clamp(floor(playerCount * ratio), MIN, MAX)
-RoundConfig.SEEKER_RATIO = 0.30
+RoundConfig.SEEKER_RATIO = 0.25
 RoundConfig.MIN_SEEKERS  = 1
 RoundConfig.MAX_SEEKERS  = 3
 
 -- ── Scoring ────────────────────────────────────────────────────────────────
-RoundConfig.SCORE_HIDER_SURVIVE_FULL  = 100
-RoundConfig.SCORE_HIDER_SURVIVE_HALF  = 40
-RoundConfig.SCORE_SEEKER_CORRECT_FIND = 75
-RoundConfig.SCORE_SEEKER_FAST_BONUS   = 25   -- Max additional bonus for speed
-RoundConfig.SCORE_SEEKER_WRONG_CLICK  = -15
+RoundConfig.HIDER_SURVIVE_FULL  = 100
+RoundConfig.HIDER_SURVIVE_HALF  = 40
+RoundConfig.SEEKER_CORRECT      = 75
+RoundConfig.SEEKER_FAST_BONUS   = 25   -- Max additional bonus for speed
+RoundConfig.SEEKER_WRONG        = -15
 
 -- ── Seeker mechanics ───────────────────────────────────────────────────────
 RoundConfig.WRONG_CLICK_COOLDOWN  = 2     -- seconds between wrong clicks
@@ -33,22 +36,23 @@ RoundConfig.MAX_CLICK_DISTANCE    = 100   -- studs; server raycast length
 -- Maximum distance the ray origin may be from the seeker's HRP (anti-cheat)
 RoundConfig.MAX_ORIGIN_DRIFT      = 50
 
+-- ── Position adjustment limits ────────────────────────────────────────────
+-- Controls how far a hider can nudge their pose position after locking in.
+-- Only applies to poses where AllowsAdjustment = true (see PoseConfig).
+RoundConfig.ADJUST_STEP          = 0.4   -- studs per adjustment tap
+RoundConfig.ADJUST_MAX_DISTANCE  = 3     -- max studs from original pose position
+RoundConfig.ADJUST_ROTATION_STEP = 5     -- degrees per tap
+RoundConfig.ADJUST_MAX_ROTATION  = 45    -- max degrees from original facing
+
+-- ── Wall snap ─────────────────────────────────────────────────────────────
+-- Used by PoseService for poses where CanWallSnap = true (see PoseConfig).
+RoundConfig.WALL_SNAP_DISTANCE = 5     -- max studs to detect a wall
+RoundConfig.WALL_SNAP_OFFSET   = 0.6   -- distance to keep from wall surface
+
 -- ── Body parts ────────────────────────────────────────────────────────────
--- Ordered; used by PaintService and PaintGui
+-- Ordered; used by PaintService and PaintGui.
 RoundConfig.PAINTABLE_PARTS = {
 	"Head", "Torso", "LeftArm", "RightArm", "LeftLeg", "RightLeg",
-}
-
--- ── Poses ─────────────────────────────────────────────────────────────────
--- Replace animId values with real Animator asset IDs before shipping.
--- animId = "rbxassetid://0" → server will skip animation loading and just freeze.
-RoundConfig.POSES = {
-	{ name = "Stand Straight", animId = "rbxassetid://0" },
-	{ name = "Crouch",         animId = "rbxassetid://0" },
-	{ name = "Wave",           animId = "rbxassetid://0" },
-	{ name = "Sit",            animId = "rbxassetid://0" },
-	{ name = "Look Up",        animId = "rbxassetid://0" },
-	{ name = "Lean",           animId = "rbxassetid://0" },
 }
 
 -- ── Color palette ─────────────────────────────────────────────────────────
